@@ -29,9 +29,19 @@
         <p id="story-text">Story text goes here...</p>
         <p class="press-key">Press ENTER to Continue</p>
       </div>
+      <div id="touch-controls" class="hidden">
+        <div id="dpad">
+          <button id="btn-up" class="dpad-btn" data-key="ArrowUp">▲</button>
+          <div class="dpad-middle">
+            <button id="btn-left" class="dpad-btn" data-key="ArrowLeft">◀</button>
+            <button id="btn-right" class="dpad-btn" data-key="ArrowRight">▶</button>
+          </div>
+          <button id="btn-down" class="dpad-btn" data-key="ArrowDown">▼</button>
+        </div>
+        <button id="btn-action" data-key="Space">A</button>
+      </div>
     </div>
-  </div>
-  <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/main.js"></script>
 </body>
 
 </html>

@@ -114,3 +114,92 @@ canvas {
     opacity: 0.5;
   }
 }
+
+/* Touch Controls */
+#touch-controls {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  display: flex !important;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-sizing: border-box;
+  z-index: 100;
+}
+
+#touch-controls.hidden {
+  display: none !important;
+}
+
+#touch-controls button {
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  touch-action: manipulation;
+  outline: none;
+}
+
+#touch-controls button:active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+#dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.dpad-middle {
+  display: flex;
+  gap: 60px;
+}
+
+#btn-action {
+  align-self: flex-end;
+  width: 80px;
+  height: 80px;
+  font-size: 30px;
+  background: rgba(255, 0, 0, 0.3);
+  border-color: rgba(255, 0, 0, 0.6);
+  margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 800px) {
+  body {
+    align-items: flex-start;
+    /* prevent centering on mobile */
+  }
+
+  #game-container {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    box-shadow: none;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+/* Hide touch controls on desktop/large screens default */
+@media (min-width: 801px) {
+  #touch-controls {
+    display: none !important;
+  }
+}
