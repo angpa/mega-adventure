@@ -157,10 +157,12 @@ export default class Game {
                         this.bossSpawned = true;
                         this.enemies = []; // Clear minions
                         this.enemies.push(new Enemy(this, 600, 300, 'boss')); // Spawn Khara
+                        this.audio.setBossMode(true);
                     } else if (e.type === 'boss' && e.markedForDeletion) {
                         this.currentChapter = 2; // Golden Deer Chapter
                         this.showStory(this.currentChapter);
                         this.bossSpawned = false; // Reset for next phase logic if needed, but mainly to stop minion spawn
+                        this.audio.setBossMode(false);
                     } else if (e.type === 'deer' && e.markedForDeletion) {
                         this.currentChapter = 3; // Kidnapping
                         this.showStory(this.currentChapter);

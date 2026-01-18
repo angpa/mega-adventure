@@ -54,8 +54,18 @@ export default class AudioController {
         this.nextNoteTime = this.ctx.currentTime;
         this.timerID = null;
         this.beatCount = 0;
+        this.bossMode = false;
 
         this.schedule();
+    }
+
+    setBossMode(enabled) {
+        this.bossMode = enabled;
+        if (enabled) {
+            this.tempo = 160; // Faster, more intense
+        } else {
+            this.tempo = 140;
+        }
     }
 
     schedule() {
@@ -81,21 +91,23 @@ export default class AudioController {
         // DRUMS
         // Timpani / Kick: Heavy hits on 0, 3, 8, 11 (Timpani Roll feel)
         if (step === 0 || step === 3 || step === 8 || step === 11) {
-            this.playDrum(time, 80, 0.2, 'timpani');
+            this.playDrum(time, this.bossMode ? 60 : 80, 0.2, 'timpani'); // Lower pitch in boss mode
         }
         // Snare/Clap on 4 and 12
         if (step === 4 || step === 12) {
             this.playDrum(time, 200, 0.1, 'snare');
         }
-        // Hi-hats every 2 steps
-        if (step % 2 === 0) {
+        // Hi-hats: Faster 16th notes in boss mode
+        if (step % 2 === 0 || (this.bossMode && step % 1 === 0)) {
             this.playDrum(time, 1000, 0.05, 'hat');
         }
 
         // BASS (Driving Ostinato)
         // C2 - C2 - Eb2 - C2 pattern
         let note = 65.41; // C2
-        if (step === 2 || step === 3) note = 77.78; // Eb2
+        if (this.bossMode) note = 58.27; // Bb1 (Darker key change)
+
+        if (step === 2 || step === 3) note = this.bossMode ? 69.30 : 77.78; // C#2 / Eb2
         if (step % 2 === 0) {
             this.playSynth(time, note, 0.1, 'bass');
         }
@@ -103,11 +115,19 @@ export default class AudioController {
         // BRASS STABS (Evangelion Style)
         // Dramatic chords at start of measure 0 and 2
         if (measure % 2 === 0 && step === 0) {
-            // C Minor add9 (C - Eb - G - D)
-            this.playSynth(time, 261.63, 0.5, 'brass'); // C4
-            this.playSynth(time, 311.13, 0.5, 'brass'); // Eb4
-            this.playSynth(time, 392.00, 0.5, 'brass'); // G4
-            this.playSynth(time, 587.33, 0.5, 'brass'); // D5
+            if (this.bossMode) {
+                // Bb Diminished / Dissonant
+                this.playSynth(time, 233.08, 0.5, 'brass'); // Bb3
+                this.playSynth(time, 293.66, 0.5, 'brass'); // D4
+                this.playSynth(time, 329.63, 0.5, 'brass'); // E4 (Tritone)
+                this.playSynth(time, 466.16, 0.5, 'brass'); // Bb4
+            } else {
+                // C Minor add9 (C - Eb - G - D)
+                this.playSynth(time, 261.63, 0.5, 'brass'); // C4
+                this.playSynth(time, 311.13, 0.5, 'brass'); // Eb4
+                this.playSynth(time, 392.00, 0.5, 'brass'); // G4
+                this.playSynth(time, 587.33, 0.5, 'brass'); // D5
+            }
         }
     }
 

@@ -25,8 +25,17 @@ export default class Level {
     draw(ctx) {
         // Sky Gradient (Dandakaranya Forest look)
         const gradient = ctx.createLinearGradient(0, 0, 0, 600);
-        gradient.addColorStop(0, '#1a0e0e'); // Dark forest sky
-        gradient.addColorStop(1, '#2d4b2d'); // Greenish horizon
+
+        if (this.game.bossSpawned) {
+            // Boss Atmosphere: Dark Red/Black
+            gradient.addColorStop(0, '#0f0000'); // Blood sky
+            gradient.addColorStop(1, '#2d0a0a'); // Dark ground mist
+        } else {
+            // Normal Atmosphere
+            gradient.addColorStop(0, '#1a0e0e'); // Dark forest sky
+            gradient.addColorStop(1, '#2d4b2d'); // Greenish horizon
+        }
+
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, this.game.width, this.game.height);
 
