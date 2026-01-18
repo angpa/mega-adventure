@@ -100,8 +100,8 @@ export default class Enemy {
                 this.game.shakeScreen(0.5, 20); // 0.5s shake, 20px magnitude
                 this.game.audio.playExplosion(); // SOUND EFFECT
 
-                // Damage Player if they are on ground
-                if (this.game.player.grounded) {
+                // Damage Player ONLY if they are on ground floor (not platforms)
+                if (this.game.player.grounded && this.game.player.y > 450) {
                     this.game.player.health -= 20;
                     this.game.player.invulnerableTimer = 1;
                     document.getElementById('health-val').innerText = this.game.player.health;
