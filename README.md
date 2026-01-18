@@ -45,4 +45,5 @@ El juego está desplegado en Vercel:
 
 ## Créditos
 
-Desarrollado con ❤️ para Vibecraft.
+Creado y diseñado por **angpa**.
+
