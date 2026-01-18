@@ -30,4 +30,31 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const game = new Game(canvas);
   game.start();
+
+  // Music toggle
+  const musicBtn = document.getElementById('music-toggle');
+  let musicOn = true;
+  musicBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // prevent game input interference
+    if (musicOn) {
+      game.audio.stopMusic();
+      musicBtn.innerText = '🔇';
+      musicOn = false;
+    } else {
+      game.audio.startMusic();
+      musicBtn.innerText = '🎵';
+      musicOn = true;
+    }
+    // Also resume context if suspended (browser policy)
+    if (game.audio.ctx.state === 'suspended') {
+      game.audio.ctx.resume();
+    }
+  });
+
+  // Also enable audio on first interaction just in case
+  window.addEventListener('click', () => {
+    if (game.audio.ctx.state === 'suspended') {
+      game.audio.ctx.resume();
+    }
+  }, { once: true });
 });

@@ -46,6 +46,7 @@ export default class Game {
         this.lastTime = performance.now();
         requestAnimationFrame((ts) => this.loop(ts));
 
+        this.audio.startMusic();
         console.log('Game Started');
     }
 
