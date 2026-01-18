@@ -115,6 +115,7 @@ canvas {
   }
 }
 
+
 /* Touch Controls */
 #touch-controls {
   position: absolute;
@@ -122,16 +123,13 @@ canvas {
   left: 0;
   width: 100%;
   pointer-events: none;
-  display: flex !important;
+  display: flex;
   justify-content: space-between;
   padding: 0 40px;
   box-sizing: border-box;
   z-index: 100;
 }
 
-#touch-controls.hidden {
-  display: none !important;
-}
 
 #touch-controls button {
   pointer-events: auto;
