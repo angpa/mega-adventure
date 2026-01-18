@@ -82,7 +82,7 @@ export default class Game {
         }
 
         if (this.showingStory) {
-            if (this.input.isDown('Enter')) {
+            if (this.input.isDown('Space')) {
                 this.hideStory();
             }
             return;
