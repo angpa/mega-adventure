@@ -47,7 +47,7 @@ export default class Player {
 
         // Shooting
         if (this.shootTimer > 0) this.shootTimer -= dt;
-        if (this.game.input.isDown('KeyZ') && this.shootTimer <= 0) {
+        if (this.game.input.isDown('Space') && this.shootTimer <= 0) {
             const bx = this.facing === 1 ? this.x + this.width : this.x - 10;
             const by = this.y + this.height / 2 - 5;
             this.game.projectiles.push(new Projectile(this.game, bx, by, this.facing));
