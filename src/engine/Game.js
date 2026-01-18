@@ -39,6 +39,14 @@ export default class Game {
         this.killsTarget = 14; // Defeat 14 demons (Khara's first wave)
         this.bossSpawned = false;
         this.spawnTimer = 0;
+
+        // Camera Shake
+        this.shake = {
+            duration: 0,
+            magnitude: 0,
+            x: 0,
+            y: 0
+        };
     }
 
     start() {
@@ -66,7 +74,23 @@ export default class Game {
         requestAnimationFrame((ts) => this.loop(ts));
     }
 
+    shakeScreen(duration, magnitude) {
+        this.shake.duration = duration;
+        this.shake.magnitude = magnitude;
+    }
+
     update(dt) {
+        // Update Shake
+        if (this.shake.duration > 0) {
+            this.shake.duration -= dt;
+            const mag = this.shake.magnitude * (this.shake.duration > 0 ? 1 : 0); // cut off immediately
+            this.shake.x = (Math.random() - 0.5) * 2 * mag;
+            this.shake.y = (Math.random() - 0.5) * 2 * mag;
+        } else {
+            this.shake.x = 0;
+            this.shake.y = 0;
+        }
+
         // Test input
         if (this.input.isDown('Space')) {
             const startScreen = document.getElementById('start-screen');
@@ -215,6 +239,9 @@ export default class Game {
     }
 
     draw() {
+        this.ctx.save();
+        this.ctx.translate(this.shake.x, this.shake.y);
+
         // Draw Level (Background handling incorporated)
         this.level.draw(this.ctx);
 
@@ -234,6 +261,8 @@ export default class Game {
         this.ctx.fillStyle = '#0ff';
         this.ctx.font = '16px monospace';
         this.ctx.fillText(`Player: ${Math.round(this.player.x)}, ${Math.round(this.player.y)} | Enemies: ${this.enemies.length} | Kills: ${this.kills}`, 10, 20);
+
+        this.ctx.restore();
     }
     showStory(index) {
         if (index >= storyChapters.length) return;

@@ -87,6 +87,38 @@ export default class Enemy {
         }
         // Boss Attack (AI Logic)
         if (this.type === 'boss') {
+            // Jump Logic
+            if (this.vy === 0 && Math.random() < 0.02) { // Random chance to jump
+                this.vy = -800; // BIG JUMP
+                this.grounded = false;
+            }
+
+            // Quake Attack on Landing
+            if (this.vy === 0 && !this.grounded) {
+                // Just landed
+                this.grounded = true;
+                this.game.shakeScreen(0.5, 20); // 0.5s shake, 20px magnitude
+                this.game.audio.playExplosion(); // SOUND EFFECT
+
+                // Damage Player if they are on ground
+                if (this.game.player.grounded) {
+                    this.game.player.health -= 20;
+                    this.game.player.invulnerableTimer = 1;
+                    document.getElementById('health-val').innerText = this.game.player.health;
+
+                    // Knockup player
+                    this.game.player.vy = -400;
+                    this.game.player.grounded = false;
+
+                    if (this.game.player.health <= 0) {
+                        this.game.gameOver = true;
+                        document.getElementById('game-over-screen').classList.remove('hidden');
+                    }
+                }
+            } else if (this.vy !== 0) {
+                this.grounded = false;
+            }
+
             this.shootTimer -= dt;
             if (this.shootTimer <= 0) {
                 if (Math.abs(this.game.player.x - this.x) < 300) {
