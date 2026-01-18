@@ -23,9 +23,39 @@ export default class Player {
         this.shootInterval = 0.2;
         this.health = 100;
         this.invulnerableTimer = 0;
+
+        // Dash properties
+        this.dashCooldown = 0;
+        this.isDashing = false;
+        this.dashTime = 0;
     }
 
     update(dt) {
+        // Invulnerability
+        if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
+
+        // Dash Logic
+        if (this.dashCooldown > 0) this.dashCooldown -= dt;
+        if (this.isDashing) {
+            this.dashTime -= dt;
+            this.vx = this.facing * 600; // Dash speed
+            this.vy = 0; // Anti-gravity during dash
+            this.invulnerableTimer = 0.1; // Invulnerable while dashing
+
+            if (this.dashTime <= 0) {
+                this.isDashing = false;
+                this.dashCooldown = 1.0; // 1 second cooldown
+                this.vy = 0; // Stop vertical momentum after dash
+            }
+            // Skip other movement logic while dashing
+            this.x += this.vx * dt;
+
+            // Screen bounds
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.width > this.game.width) this.x = this.game.width - this.width;
+            return;
+        }
+
         // Horizontal Movement
         if (this.game.input.isDown('ArrowRight')) {
             this.vx = this.speed;
@@ -40,10 +70,15 @@ export default class Player {
             this.state = 'idle';
         }
 
-        this.x += this.vx * dt;
+        // Trigger Dash
+        if ((this.game.input.isDown('ShiftLeft') || this.game.input.isDown('ShiftRight')) && this.dashCooldown <= 0 && this.vx !== 0) {
+            this.isDashing = true;
+            this.dashTime = 0.2; // 0.2s duration
+            this.game.audio.playJump(); // Reuse jump sound for now
+            this.state = 'jump'; // Visual reuse
+        }
 
-        // Invulnerability
-        if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
+        this.x += this.vx * dt;
 
         // Shooting
         if (this.shootTimer > 0) this.shootTimer -= dt;

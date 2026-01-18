@@ -39,6 +39,10 @@ export default class Game {
         this.killsTarget = 14; // Defeat 14 demons (Khara's first wave)
         this.bossSpawned = false;
         this.spawnTimer = 0;
+        this.bossReference = null; // Track boss for UI
+
+        // Visual Effects
+        this.damageNumbers = [];
 
         // Camera Shake
         this.shake = {
@@ -79,6 +83,17 @@ export default class Game {
         this.shake.magnitude = magnitude;
     }
 
+    showDamage(x, y, amount, color = '#fff') {
+        this.damageNumbers.push({
+            x: x + (Math.random() - 0.5) * 20,
+            y: y,
+            amount: amount,
+            color: color,
+            life: 1.0,
+            vy: -50 // Float up
+        });
+    }
+
     update(dt) {
         // Update Shake
         if (this.shake.duration > 0) {
@@ -89,6 +104,16 @@ export default class Game {
         } else {
             this.shake.x = 0;
             this.shake.y = 0;
+        }
+
+        // Update Damage Numbers
+        for (let i = this.damageNumbers.length - 1; i >= 0; i--) {
+            let dn = this.damageNumbers[i];
+            dn.life -= dt;
+            dn.y += dn.vy * dt;
+            if (dn.life <= 0) {
+                this.damageNumbers.splice(i, 1);
+            }
         }
 
         // Test input
@@ -157,6 +182,7 @@ export default class Game {
 
                     if (e.type === 'boss') {
                         e.health -= 10; // Projectile damage to boss
+                        this.showDamage(e.x + e.width / 2, e.y, 10, '#fff');
                         if (e.health <= 0) {
                             e.markedForDeletion = true;
                             this.score += 5000;
@@ -180,12 +206,15 @@ export default class Game {
                     if (this.kills >= this.killsTarget && this.currentChapter < 1 && !this.bossSpawned) {
                         this.bossSpawned = true;
                         this.enemies = []; // Clear minions
-                        this.enemies.push(new Enemy(this, 600, 300, 'boss')); // Spawn Khara
+                        const boss = new Enemy(this, 600, 300, 'boss');
+                        this.enemies.push(boss); // Spawn Khara
+                        this.bossReference = boss;
                         this.audio.setBossMode(true);
                     } else if (e.type === 'boss' && e.markedForDeletion) {
                         this.currentChapter = 2; // Golden Deer Chapter
                         this.showStory(this.currentChapter);
                         this.bossSpawned = false; // Reset for next phase logic if needed, but mainly to stop minion spawn
+                        this.bossReference = null;
                         this.audio.setBossMode(false);
                     } else if (e.type === 'deer' && e.markedForDeletion) {
                         this.currentChapter = 3; // Kidnapping
@@ -212,6 +241,7 @@ export default class Game {
                 this.audio.playHit();
                 const damage = e.type === 'boss' ? 50 : 20;
                 this.player.health -= damage;
+                this.showDamage(this.player.x, this.player.y, damage, '#ff0000');
                 this.player.invulnerableTimer = 2; // 2 seconds invulnerability
                 document.getElementById('health-val').innerText = this.player.health;
 
@@ -261,6 +291,40 @@ export default class Game {
         this.ctx.fillStyle = '#0ff';
         this.ctx.font = '16px monospace';
         this.ctx.fillText(`Player: ${Math.round(this.player.x)}, ${Math.round(this.player.y)} | Enemies: ${this.enemies.length} | Kills: ${this.kills}`, 10, 20);
+
+        // Draw Damage Numbers
+        this.ctx.font = 'bold 20px sans-serif';
+        this.damageNumbers.forEach(dn => {
+            this.ctx.fillStyle = dn.color;
+            this.ctx.globalAlpha = dn.life; // Fade out
+            this.ctx.fillText(dn.amount, dn.x, dn.y);
+            this.ctx.globalAlpha = 1.0;
+        });
+
+        // Draw Boss Health Bar
+        if (this.bossSpawned && this.bossReference && !this.bossReference.markedForDeletion) {
+            const barWidth = 400;
+            const barHeight = 20;
+            const x = (this.width - barWidth) / 2;
+            const y = 30;
+
+            // Background
+            this.ctx.fillStyle = '#440000';
+            this.ctx.fillRect(x, y, barWidth, barHeight);
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.strokeRect(x, y, barWidth, barHeight);
+
+            // Fill
+            const pct = Math.max(0, this.bossReference.health / 500);
+            this.ctx.fillStyle = pct < 0.5 ? '#ff0000' : '#ffff00'; // Red/Yellow
+            this.ctx.fillRect(x, y, barWidth * pct, barHeight);
+
+            // Name
+            this.ctx.fillStyle = '#fff';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('KHARA, THE DEMON', this.width / 2, y - 5);
+            this.ctx.textAlign = 'left';
+        }
 
         this.ctx.restore();
     }

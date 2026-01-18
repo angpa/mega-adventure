@@ -135,13 +135,23 @@ export default class Enemy {
                 // Update active bolts
                 for (let i = this.lightningBolts.length - 1; i >= 0; i--) {
                     let bolt = this.lightningBolts[i];
-                    bolt.life -= dt;
-                    if (bolt.life <= 0) {
-                        this.lightningBolts.splice(i, 1);
+
+                    if (bolt.warmup > 0) {
+                        bolt.warmup -= dt;
+                        if (bolt.warmup <= 0) {
+                            bolt.active = true;
+                            this.game.audio.playShoot(); // Zap!
+                        }
                     } else {
-                        // Check collision with player
-                        if (this.checkLineCircleCollision(bolt.x, bolt.y, bolt.endX, bolt.endY, this.game.player.x + 16, this.game.player.y + 16, 20)) {
-                            this.damagePlayer(15);
+                        // Active Bolt
+                        bolt.life -= dt;
+                        if (bolt.life <= 0) {
+                            this.lightningBolts.splice(i, 1);
+                        } else {
+                            // Check collision with player
+                            if (this.checkLineCircleCollision(bolt.x, bolt.y, bolt.endX, bolt.endY, this.game.player.x + 16, this.game.player.y + 16, 20)) {
+                                this.damagePlayer(15);
+                            }
                         }
                     }
                 }
@@ -167,7 +177,7 @@ export default class Enemy {
     }
 
     fireLightning() {
-        this.game.audio.playShoot(); // Zap sound placeholder
+        // Prepare bolts (don't play sound yet)
         const count = 5;
         for (let i = 0; i < count; i++) {
             const angle = (Math.PI / count) * i + Math.PI; // Fan upwards/outwards or towards player
@@ -186,6 +196,8 @@ export default class Enemy {
                 endX: this.x + 32 + Math.cos(finalAngle) * length,
                 endY: this.y + 32 + Math.sin(finalAngle) * length,
                 life: 0.3, // Lasts 0.3s
+                warmup: 0.6, // Warnings for 0.6s
+                active: false,
                 width: 5
             });
         }
@@ -268,15 +280,22 @@ export default class Enemy {
             // Draw Lightning Bolts
             if (this.phase === 2) {
                 ctx.save();
-                ctx.strokeStyle = '#00ffff';
-                ctx.lineWidth = 4;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#00ffff';
-
                 this.lightningBolts.forEach(bolt => {
                     ctx.beginPath();
                     ctx.moveTo(bolt.x, bolt.y);
                     ctx.lineTo(bolt.endX, bolt.endY);
+
+                    if (bolt.active) {
+                        ctx.strokeStyle = '#00ffff';
+                        ctx.lineWidth = 4;
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = '#00ffff';
+                    } else {
+                        // Telegraph line
+                        ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                        ctx.lineWidth = 1;
+                        ctx.shadowBlur = 0;
+                    }
                     ctx.stroke();
                 });
                 ctx.restore();
