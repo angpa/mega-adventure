@@ -41,7 +41,7 @@ Una aventura épica basada en el Ramayana, donde controlas a Rama para derrotar 
 ## Despliegue
 
 El juego está desplegado en Vercel:
-[https://mega-adventure-7qmcjmljw-angpas-projects.vercel.app](https://mega-adventure-7qmcjmljw-angpas-projects.vercel.app)
+[https://mega-adventure.vercel.app/](https://mega-adventure.vercel.app/)
 
 ## Créditos
 
