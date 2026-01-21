@@ -223,9 +223,9 @@ export default class Game {
                     document.getElementById('score-val').innerText = this.score;
                     this.audio.playExplosion();
 
-                    // Spawn ONE MILLION particles (Nex Machina Style)
+                    // Spawn particles (Optimized for low-spec)
                     const neonColors = ['#00ffff', '#ff00ff', '#00ff00', '#ffff00'];
-                    for (let i = 0; i < 50; i++) {
+                    for (let i = 0; i < 20; i++) {
                         const color = neonColors[Math.floor(Math.random() * neonColors.length)];
                         this.game.particles.push(new Particle(this.game, e.x + e.width / 2, e.y + e.height / 2, color));
                     }

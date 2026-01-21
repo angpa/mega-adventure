@@ -21,14 +21,18 @@ export default class Projectile {
 
     draw(ctx) {
         ctx.save();
-        ctx.fillStyle = '#00ffff'; // Cyan Neon
-        ctx.shadowColor = '#00ffff';
-        ctx.shadowBlur = 15; // Intense glow
+
+        // "Cheap" Neon Glow
+        ctx.fillStyle = '#00ffff';
+        ctx.globalAlpha = 0.3;
+        ctx.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+
+        // Main Beam
+        ctx.globalAlpha = 1.0;
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
         // Core (white hot center)
         ctx.fillStyle = '#ffffff';
-        ctx.shadowBlur = 0;
         ctx.fillRect(this.x + 2, this.y + 1, this.width - 4, this.height - 2);
 
         ctx.restore();

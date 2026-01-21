@@ -40,14 +40,16 @@ export default class Particle {
         ctx.rotate(this.angle);
         ctx.globalAlpha = this.life;
 
+        // "Cheap" Neon Glow: Draw a larger, transparent rect behind
         ctx.fillStyle = this.color;
-        // Neon Glow
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 10;
+        ctx.globalAlpha = this.life * 0.3; // Low opacity
+        ctx.fillRect(-this.size, -this.size, this.size * 2, this.size * 2);
 
+        // Main Voxel
+        ctx.globalAlpha = this.life;
         ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
 
-        // Wireframe overlay for "tech" look
+        // Wireframe overlay for "tech" look (optional, keep if cheap enough)
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 1;
         ctx.strokeRect(-this.size / 2, -this.size / 2, this.size, this.size);
