@@ -172,6 +172,18 @@ export default class Game {
         // Update Particles
         this.particles.forEach(p => p.update(dt));
 
+        // Check Statue Interaction (Reward)
+        if (this.level.statue.active && this.level.statue.x < this.player.x + this.player.width &&
+            this.level.statue.x + this.level.statue.width > this.player.x &&
+            this.level.statue.y < this.player.y + this.player.height &&
+            this.level.statue.y + this.level.statue.height > this.player.y) {
+
+            this.level.statue.active = false;
+            this.player.health = this.player.maxHealth;
+            this.showDamage(this.player.x, this.player.y - 40, "Ancient Wisdom Heals You!", '#ffd700');
+            // this.audio.playPowerup(); 
+        }
+
         // Update Enemies & Collisions
         this.enemies.forEach(e => {
             e.update(dt);

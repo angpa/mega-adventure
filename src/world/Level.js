@@ -1,23 +1,39 @@
 export default class Level {
     constructor(game) {
         this.game = game;
+        // Architectural rhythm: stepped plinths that lead the eye rightward toward a shrine/landmark.
         this.platforms = [
-            // Floor
-            { x: 0, y: 500, width: 2000, height: 100 },
-            // Platforms
-            { x: 300, y: 400, width: 200, height: 20 },
-            { x: 600, y: 300, width: 200, height: 20 },
-            { x: 100, y: 250, width: 100, height: 20 }
+            // Ground plane
+            { x: 0, y: 500, width: 820, height: 120 },
+            // Low step (arrival)
+            { x: 80, y: 430, width: 160, height: 18 },
+            // Mid promenade
+            { x: 240, y: 370, width: 180, height: 18 },
+            // Overlook to shrine
+            { x: 460, y: 320, width: 180, height: 18 },
+            // Shrine plinth (highest point / landmark)
+            { x: 660, y: 270, width: 120, height: 18 },
+            // Prospect/Refuge: High observation deck (Safe Zone)
+            { x: 50, y: 250, width: 100, height: 18 }
         ];
+
+        // Reward: Ancient Statue (Heals player)
+        this.statue = {
+            x: 700,
+            y: 230,
+            width: 40,
+            height: 40,
+            active: true
+        };
 
         // Procedural decoration (Trees)
         this.trees = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 12; i++) {
             this.trees.push({
-                x: i * 150 + Math.random() * 50,
+                x: i * 70 + Math.random() * 40,
                 y: 500,
-                height: 100 + Math.random() * 100,
-                width: 20 + Math.random() * 20
+                height: 80 + Math.random() * 90,
+                width: 16 + Math.random() * 18
             });
         }
     }
@@ -32,12 +48,55 @@ export default class Level {
             gradient.addColorStop(1, '#2d0a0a'); // Dark ground mist
         } else {
             // Normal Atmosphere
-            gradient.addColorStop(0, '#1a0e0e'); // Dark forest sky
-            gradient.addColorStop(1, '#2d4b2d'); // Greenish horizon
+            gradient.addColorStop(0, '#0a0f1e'); // Night-blue sky
+            gradient.addColorStop(0.45, '#0f1f34'); // Mid haze
+            gradient.addColorStop(1, '#1c3326'); // Greenish horizon
         }
 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, this.game.width, this.game.height);
+
+        // Far silhouette hills (soft parallax)
+        ctx.fillStyle = 'rgba(25, 55, 65, 0.5)';
+        ctx.beginPath();
+        ctx.moveTo(0, 430);
+        ctx.quadraticCurveTo(200, 360, 420, 420);
+        ctx.quadraticCurveTo(620, 340, 820, 420);
+        ctx.lineTo(820, 600);
+        ctx.lineTo(0, 600);
+        ctx.closePath();
+        ctx.fill();
+
+        // Temple/Shrine landmark to anchor sightline on the right
+        ctx.save();
+        ctx.translate(700, 220);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.strokeStyle = 'rgba(83, 243, 255, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); // base
+        ctx.rect(-40, 80, 80, 30);
+        ctx.rect(-28, 50, 56, 30);
+        ctx.rect(-18, 20, 36, 30);
+        ctx.rect(-10, -10, 20, 30);
+        ctx.rect(-4, -34, 8, 24);
+        ctx.fill();
+        ctx.stroke();
+        ctx.stroke();
+        ctx.restore();
+
+        // Draw Ancient Statue (Reward)
+        if (this.statue.active) {
+            ctx.save();
+            ctx.fillStyle = '#ffd700'; // Gold
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 10;
+            ctx.fillRect(this.statue.x, this.statue.y, this.statue.width, this.statue.height);
+            // Simple detail
+            ctx.fillStyle = '#000';
+            ctx.font = '20px serif';
+            ctx.fillText('Ω', this.statue.x + 12, this.statue.y + 28);
+            ctx.restore();
+        }
 
         // Draw Background Trees (Parallax effect simulated by being drawn first)
         ctx.fillStyle = '#1e331e';
