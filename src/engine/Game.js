@@ -315,7 +315,7 @@ export default class Game {
             this.ctx.strokeRect(x, y, barWidth, barHeight);
 
             // Fill
-            const pct = Math.max(0, this.bossReference.health / 289);
+            const pct = Math.max(0, this.bossReference.health / 257);
             this.ctx.fillStyle = pct < 0.5 ? '#ff0000' : '#ffff00'; // Red/Yellow
             this.ctx.fillRect(x, y, barWidth * pct, barHeight);
 

@@ -10,13 +10,16 @@ export default class Enemy {
         if (this.type === 'boss') {
             this.width = 64;
             this.height = 64;
-            this.health = 289; // Reduced by another 23% (was 375)
+            this.health = 257; // Reduced by another 11% (was 289)
             this.vx = 80;
         } else if (this.type === 'deer') {
             this.width = 40;
             this.height = 40;
             this.health = 500; // Hard to catch!
-            this.vx = 250; // Very fast
+            this.vx = 400; // Very fast
+            this.deerState = 'fleeing'; // fleeing | combat
+            this.shootTimer = 0;
+            this.projectiles = []; // Deer can shoot now
         } else if (this.type === 'jatayu') {
             this.width = 80;
             this.height = 50;
@@ -61,16 +64,38 @@ export default class Enemy {
                 this.direction = 1;
             }
         } else {
-            // Deer Logic: Run AWAY from player
-            if (this.game.player.x < this.x) {
-                this.direction = 1; // Run right
-            } else {
-                this.direction = -1; // Run left
-            }
+            // Deer Logic
+            if (this.deerState === 'fleeing' || this.deerState === 'combat') {
+                // Run AWAY from player
+                if (this.game.player.x < this.x) {
+                    this.direction = 1; // Run right
+                } else {
+                    this.direction = -1; // Run left
+                }
 
-            // Keep in bounds
-            if (this.x < 0) this.x = 0;
-            if (this.x > this.game.width - this.width) this.x = this.game.width - this.width;
+                // Keep in bounds
+                if (this.x < 0) this.x = 0;
+                if (this.x > this.game.width - this.width) this.x = this.game.width - this.width;
+
+                // Collision with Player -> Trigger Combat
+                if (this.deerState === 'fleeing' && this.checkCollision(this, this.game.player)) {
+                    this.deerState = 'combat';
+                    this.game.audio.playExplosion(); // Transformation sound
+                    this.health = 500; // Reset or keep high
+                    // Push player back
+                    this.game.player.vx = (this.x > this.game.player.x ? -1 : 1) * 600;
+                    this.game.player.vy = -400;
+                }
+
+                // Combat State: Shoot
+                if (this.deerState === 'combat') {
+                    this.shootTimer -= dt;
+                    if (this.shootTimer <= 0) {
+                        this.shootAtPlayer();
+                        this.shootTimer = 1.5;
+                    }
+                }
+            }
         }
 
         // Apply Gravity
@@ -96,7 +121,7 @@ export default class Enemy {
         if (this.type === 'boss') {
 
             // Phase transformation
-            if (this.health <= 144 && this.phase === 1) { // 50% of 289
+            if (this.health <= 128 && this.phase === 1) { // ~50% of 257
                 this.phase = 2;
                 this.game.shakeScreen(1.0, 5); // Warning shake
                 this.game.audio.playExplosion();
@@ -260,6 +285,34 @@ export default class Enemy {
         }
     }
 
+    shootAtPlayer() {
+        // Simple projectile aimed at player
+        // For simplicity, reusing 'lightningBolts' array logic or adding new projectiles to game?
+        // Let's add directly to game projectiles if possible, or handle locally.
+        // Game projectiles expects 'Projectile' class... let's check Game.js
+        // Game.js has 'projectiles' array but uses generic projectile logic?
+        // Actually, let's use the LightningBolt logic for now but as a "fireball"
+
+        // Simpler: Just spawn a standard enemy projectile if we had one. 
+        // Since we don't have a standard specialized enemy projectile class visible here easily without more imports or logic, 
+        // let's use the 'lightningBolts' list on the deer itself and draw them as fireballs.
+
+        if (!this.fireballs) this.fireballs = [];
+
+        const angle = Math.atan2(this.game.player.y - this.y, this.game.player.x - this.x);
+        this.fireballs.push({
+            x: this.x + this.width / 2,
+            y: this.y + this.height / 2,
+            vx: Math.cos(angle) * 400,
+            vy: Math.sin(angle) * 400,
+            life: 3.0,
+            width: 10,
+            height: 10
+        });
+
+        this.game.audio.playShoot();
+    }
+
     draw(ctx) {
         if (this.type === 'boss') {
             // Body color changes in Phase 2
@@ -275,7 +328,7 @@ export default class Enemy {
             ctx.fillStyle = 'red';
             ctx.fillRect(this.x, this.y - 10, this.width, 5);
             ctx.fillStyle = 'green';
-            ctx.fillRect(this.x, this.y - 10, this.width * (this.health / 289), 5);
+            ctx.fillRect(this.x, this.y - 10, this.width * (this.health / 257), 5);
 
             // Draw Lightning Bolts
             if (this.phase === 2) {
@@ -302,7 +355,26 @@ export default class Enemy {
             }
 
         } else if (this.type === 'deer') {
-            ctx.fillStyle = '#ffd700'; // GOLD
+
+            // Draw Fireballs
+            if (this.fireballs) {
+                ctx.fillStyle = '#ff4400';
+                this.fireballs.forEach(fb => {
+                    fb.x += fb.vx * 0.016; // Approx dt
+                    fb.y += fb.vy * 0.016;
+                    ctx.fillRect(fb.x, fb.y, fb.width, fb.height);
+
+                    // Check collision with player
+                    if (this.checkCollision(fb, this.game.player)) {
+                        this.damagePlayer(15);
+                        fb.life = 0; // Destroy
+                    }
+                });
+                // Cleanup
+                this.fireballs = this.fireballs.filter(fb => fb.life > 0 && !(fb.life = fb.life - 0.016 <= 0));
+            }
+
+            ctx.fillStyle = this.deerState === 'combat' ? '#b8860b' : '#ffd700'; // Darker gold in combat
             ctx.fillRect(this.x, this.y, this.width, this.height);
 
             // Antlers / Ears
