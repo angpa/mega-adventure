@@ -4,8 +4,8 @@ import Projectile from './Projectile.js';
 export default class Player {
     constructor(game) {
         this.game = game;
-        this.width = 32;
-        this.height = 32;
+        this.width = 40;
+        this.height = 52;
         this.x = 100;
         this.y = 400;
         this.vx = 0;
@@ -28,6 +28,14 @@ export default class Player {
         this.dashCooldown = 0;
         this.isDashing = false;
         this.dashTime = 0;
+
+        // Rama visual (cropped from Lord_Rama_with_arrows.jpg)
+        this.sprite = new Image();
+        this.spriteLoaded = false;
+        this.sprite.src = new URL('../../Lord_Rama_with_arrows.jpg', import.meta.url).href;
+        this.sprite.onload = () => {
+            this.spriteLoaded = true;
+        };
     }
 
     update(dt) {
@@ -138,20 +146,40 @@ export default class Player {
     draw(ctx) {
         if (this.invulnerableTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0) return;
 
-        ctx.fillStyle = '#0000ff'; // Rama Blue
-        if (this.state === 'run') ctx.fillStyle = '#0055ff'; // Lighter Blue running
-        if (this.state === 'jump') ctx.fillStyle = '#00aaff'; // Cyan jumping
+        if (this.spriteLoaded) {
+            const sW = this.sprite.naturalWidth;
+            const sH = this.sprite.naturalHeight;
+            const targetRatio = this.width / this.height;
 
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+            // Center-crop to preserve Lord Rama proportions without squashing
+            let srcW = sW;
+            let srcH = Math.round(srcW / targetRatio);
+            if (srcH > sH) {
+                srcH = sH;
+                srcW = Math.round(srcH * targetRatio);
+            }
+            const sx = (sW - srcW) / 2;
+            const sy = (sH - srcH) / 2;
 
-        // Debug outline
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
+            ctx.save();
+            ctx.translate(this.x + this.width / 2, this.y);
+            ctx.scale(this.facing, 1);
+            ctx.drawImage(this.sprite, sx, sy, srcW, srcH, -this.width / 2, 0, this.width, this.height);
+            ctx.restore();
 
-        // Face direction indicator
-        ctx.fillStyle = '#fff';
-        const eyeX = this.facing === 1 ? this.x + 24 : this.x + 4;
-        ctx.fillRect(eyeX, this.y + 6, 4, 4);
+            // Soft aura/glow around the avatar
+            ctx.save();
+            ctx.globalAlpha = 0.25;
+            ctx.fillStyle = '#53f3ff';
+            ctx.filter = 'blur(6px)';
+            ctx.fillRect(this.x - 4, this.y + 4, this.width + 8, this.height + 6);
+            ctx.restore();
+        } else {
+            // Fallback if image not ready
+            ctx.fillStyle = '#0000ff';
+            if (this.state === 'run') ctx.fillStyle = '#0055ff';
+            if (this.state === 'jump') ctx.fillStyle = '#00aaff';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
     }
 }
