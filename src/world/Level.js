@@ -43,14 +43,14 @@ export default class Level {
         const gradient = ctx.createLinearGradient(0, 0, 0, 600);
 
         if (this.game.bossSpawned) {
-            // Boss Atmosphere: Dark Red/Black
-            gradient.addColorStop(0, '#0f0000'); // Blood sky
-            gradient.addColorStop(1, '#2d0a0a'); // Dark ground mist
+            // Boss Atmosphere: Deep Void Red
+            gradient.addColorStop(0, '#050000');
+            gradient.addColorStop(1, '#1a0000');
         } else {
-            // Normal Atmosphere
-            gradient.addColorStop(0, '#0a0f1e'); // Night-blue sky
-            gradient.addColorStop(0.45, '#0f1f34'); // Mid haze
-            gradient.addColorStop(1, '#1c3326'); // Greenish horizon
+            // Neon Night Atmosphere
+            gradient.addColorStop(0, '#000205'); // Almost black
+            gradient.addColorStop(0.45, '#02020a'); // Deep blue hint
+            gradient.addColorStop(1, '#050a05'); // Dark tech green
         }
 
         ctx.fillStyle = gradient;

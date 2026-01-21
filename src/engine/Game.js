@@ -223,9 +223,11 @@ export default class Game {
                     document.getElementById('score-val').innerText = this.score;
                     this.audio.playExplosion();
 
-                    // Spawn particles
-                    for (let i = 0; i < 10; i++) {
-                        this.particles.push(new Particle(this, e.x + e.width / 2, e.y + e.height / 2, '#ffaa00'));
+                    // Spawn ONE MILLION particles (Nex Machina Style)
+                    const neonColors = ['#00ffff', '#ff00ff', '#00ff00', '#ffff00'];
+                    for (let i = 0; i < 50; i++) {
+                        const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+                        this.game.particles.push(new Particle(this.game, e.x + e.width / 2, e.y + e.height / 2, color));
                     }
 
                     // Check Win Condition (Defeat Minions to reach boss, defeat boss to win level)
