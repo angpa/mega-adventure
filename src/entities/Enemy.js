@@ -10,7 +10,7 @@ export default class Enemy {
         if (this.type === 'boss') {
             this.width = 64;
             this.height = 64;
-            this.health = 257; // Reduced by another 11% (was 289)
+            this.health = 203; // Reduced by another 21% (was 257)
             this.vx = 80;
         } else if (this.type === 'deer') {
             this.width = 40;
@@ -121,7 +121,7 @@ export default class Enemy {
         if (this.type === 'boss') {
 
             // Phase transformation
-            if (this.health <= 128 && this.phase === 1) { // ~50% of 257
+            if (this.health <= 102 && this.phase === 1) { // ~50% of 203
                 this.phase = 2;
                 this.game.shakeScreen(1.0, 5); // Warning shake
                 this.game.audio.playExplosion();
@@ -328,7 +328,7 @@ export default class Enemy {
             ctx.fillStyle = 'red';
             ctx.fillRect(this.x, this.y - 10, this.width, 5);
             ctx.fillStyle = 'green';
-            ctx.fillRect(this.x, this.y - 10, this.width * (this.health / 257), 5);
+            ctx.fillRect(this.x, this.y - 10, this.width * (this.health / 203), 5);
 
             // Draw Lightning Bolts
             if (this.phase === 2) {
