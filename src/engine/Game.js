@@ -51,6 +51,9 @@ export default class Game {
             x: 0,
             y: 0
         };
+
+        // Game Feel: Hit Stop
+        this.hitStopTimer = 0;
     }
 
     start() {
@@ -83,6 +86,10 @@ export default class Game {
         this.shake.magnitude = magnitude;
     }
 
+    hitStop(duration) {
+        this.hitStopTimer = duration;
+    }
+
     showDamage(x, y, amount, color = '#fff') {
         this.damageNumbers.push({
             x: x + (Math.random() - 0.5) * 20,
@@ -95,6 +102,12 @@ export default class Game {
     }
 
     update(dt) {
+        // Hit Stop Logic (Freeze frame for impact)
+        if (this.hitStopTimer > 0) {
+            this.hitStopTimer -= dt;
+            return; // Skip update loop
+        }
+
         // Update Shake
         if (this.shake.duration > 0) {
             this.shake.duration -= dt;
@@ -195,6 +208,7 @@ export default class Game {
                     if (e.type === 'boss') {
                         e.health -= 10; // Projectile damage to boss
                         this.showDamage(e.x + e.width / 2, e.y, 10, '#fff');
+                        this.hitStop(0.05); // Small freeze on boss hit
                         if (e.health <= 0) {
                             e.markedForDeletion = true;
                             this.score += 5000;
@@ -255,6 +269,8 @@ export default class Game {
                 const damage = e.type === 'boss' ? 50 : 20;
                 this.player.health -= damage;
                 this.showDamage(this.player.x, this.player.y, damage, '#ff0000');
+                this.hitStop(0.15); // Heavy freeze on player hit
+                this.shakeScreen(0.3, 15); // Heavy shake
                 this.player.invulnerableTimer = 2; // 2 seconds invulnerability
                 document.getElementById('health-val').innerText = this.player.health;
 

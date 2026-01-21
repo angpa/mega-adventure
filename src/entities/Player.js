@@ -1,5 +1,6 @@
 import Physics from '../engine/Physics.js';
 import Projectile from './Projectile.js';
+import Particle from '../engine/Particle.js';
 
 export default class Player {
     constructor(game) {
@@ -23,6 +24,11 @@ export default class Player {
         this.shootInterval = 0.2;
         this.health = 100;
         this.invulnerableTimer = 0;
+
+        // Game Feel: Input Buffering & Coyote Time
+        this.coyoteTimer = 0;
+        this.jumpBufferTimer = 0;
+        this.particleTimer = 0; // For running dust
 
         // Dash properties
         this.dashCooldown = 0;
@@ -86,6 +92,15 @@ export default class Player {
             this.state = 'jump'; // Visual reuse
         }
 
+        // Run Dust Particles
+        if (this.state === 'run' && this.grounded) {
+            this.particleTimer -= dt;
+            if (this.particleTimer <= 0) {
+                this.game.particles.push(new Particle(this.game, this.x + this.width / 2, this.y + this.height, '#8b4513'));
+                this.particleTimer = 0.1;
+            }
+        }
+
         this.x += this.vx * dt;
 
         // Shooting
@@ -98,12 +113,34 @@ export default class Player {
             this.game.audio.playShoot();
         }
 
-        // Jumping
-        if (this.game.input.isDown('ArrowUp') && this.grounded) {
+        // Jumping Logic (Game Feel)
+        // 1. Jump Buffering: Remember input for a short time
+        if (this.game.input.isDown('ArrowUp')) {
+            this.jumpBufferTimer = 0.1; // 100ms buffer
+        } else {
+            if (this.jumpBufferTimer > 0) this.jumpBufferTimer -= dt;
+        }
+
+        // 2. Coyote Time: Allow jump shortly after falling
+        if (this.grounded) {
+            this.coyoteTimer = 0.15; // 150ms gracetime
+        } else {
+            if (this.coyoteTimer > 0) this.coyoteTimer -= dt;
+        }
+
+        // Execute Jump
+        if (this.jumpBufferTimer > 0 && this.coyoteTimer > 0) {
             this.vy = this.jumpForce;
             this.grounded = false;
+            this.coyoteTimer = 0; // Consume coyote time
+            this.jumpBufferTimer = 0; // Consume buffer
             this.state = 'jump';
             this.game.audio.playJump();
+
+            // Jump Dust
+            for (let i = 0; i < 5; i++) {
+                this.game.particles.push(new Particle(this.game, this.x + this.width / 2, this.y + this.height, '#fff'));
+            }
         }
 
         // Apply Gravity
@@ -125,6 +162,12 @@ export default class Player {
                 if (this.y + this.height >= platform.y &&
                     this.y + this.height <= platform.y + this.vy * dt + 10) { // Small buffer
 
+                    if (!this.grounded) { // Just landed
+                        // Landing Dust
+                        for (let i = 0; i < 8; i++) {
+                            this.game.particles.push(new Particle(this.game, this.x + this.width / 2, this.y + this.height, '#8b4513'));
+                        }
+                    }
                     this.y = platform.y - this.height;
                     this.vy = 0;
                     this.grounded = true;
