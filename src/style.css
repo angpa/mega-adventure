@@ -116,81 +116,114 @@ canvas {
 }
 
 
-/* Touch Controls */
+/* Touch Controls - Mobile First */
 #touch-controls {
   position: absolute;
-  bottom: 60px;
+  bottom: 20px;
   left: 0;
   width: 100%;
   pointer-events: none;
   display: flex;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 0 30px;
   box-sizing: border-box;
   z-index: 100;
 }
 
-
 #touch-controls button {
   pointer-events: auto;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.4);
   color: white;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 24px;
+  font-size: 28px;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
   user-select: none;
   touch-action: manipulation;
   outline: none;
+  transition: all 0.1s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 #touch-controls button:active {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0.95) translateY(2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
+/* D-Pad */
 #dpad {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+}
+
+.dpad-btn {
+  width: 80px;
+  height: 80px;
 }
 
 .dpad-middle {
   display: flex;
-  gap: 60px;
+  gap: 70px;
+}
+
+/* Action Buttons Container */
+#action-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 15px;
+}
+
+.action-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
 }
 
 #btn-action {
-  align-self: flex-end;
-  width: 80px;
-  height: 80px;
-  font-size: 30px;
-  background: rgba(255, 0, 0, 0.3);
-  border-color: rgba(255, 0, 0, 0.6);
-  margin-bottom: 20px;
+  width: 100px;
+  height: 100px;
+  font-size: 36px;
+  background: rgba(255, 50, 50, 0.25);
+  border-color: rgba(255, 50, 50, 0.6);
+}
+
+#btn-action:active {
+  background: rgba(255, 50, 50, 0.5);
+}
+
+#btn-dash {
+  width: 75px;
+  height: 75px;
+  font-size: 32px;
+  background: rgba(50, 200, 255, 0.25);
+  border-color: rgba(50, 200, 255, 0.6);
+}
+
+#btn-dash:active {
+  background: rgba(50, 200, 255, 0.5);
 }
 
 #btn-start {
-  align-self: flex-end;
-  width: 80px;
-  height: 40px;
-  border-radius: 10px;
-  font-size: 16px;
+  width: 90px;
+  height: 45px;
+  border-radius: 12px;
+  font-size: 18px;
   background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border: 3px solid rgba(255, 255, 255, 0.4);
   color: white;
-  margin-bottom: 40px;
 }
 
 /* Responsive Design */
 @media (max-width: 800px) {
   body {
     align-items: flex-start;
-    /* prevent centering on mobile */
   }
 
   #game-container {
@@ -205,9 +238,22 @@ canvas {
     height: 100%;
     object-fit: contain;
   }
+
+  #hud {
+    font-size: 20px;
+    padding: 15px;
+  }
+
+  .screen h1 {
+    font-size: 36px;
+  }
+
+  .screen p {
+    font-size: 20px;
+  }
 }
 
-/* Hide touch controls on desktop/large screens default */
+/* Hide touch controls on desktop */
 @media (min-width: 801px) {
   #touch-controls {
     display: none !important;
