@@ -217,6 +217,7 @@ export default class Game {
                         this.bossReference = null;
                         this.audio.setBossMode(false);
                     } else if (e.type === 'deer' && e.markedForDeletion) {
+                        this.showDamage(e.x, e.y - 50, "Ah Sita! Ah Lakshmana!", '#ff0033'); // Maricha's deceptive cry
                         this.currentChapter = 3; // Kidnapping
                         this.showStory(this.currentChapter);
                     }
